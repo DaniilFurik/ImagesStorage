@@ -26,30 +26,53 @@ private enum Constants {
     static let spacing: CGFloat = 16
     static let bigSpacing: CGFloat = 48
     static let fontSize: CGFloat = 24
+    static let imageSize: CGFloat = 50
     
     static let enterCodeText = "Enter your code"
     static let createCodeText = "Create your code"
     static let confirmCodeText = "Confirm your code"
+    
+    static let delay: TimeInterval = 0.3
+    static let shortDelay: TimeInterval = 0.1
 }
 
 class AuthorizationViewController: UIViewController {
-    // MARK: - Lifecycle
+    // MARK: - Properties
     
-    private var password = "" {
-        didSet {
-            passwordLabel.text = password
-        }
-    }
+    private let firstImage: CodeImage = {
+        return CodeImage()
+    }()
     
-    private let passwordLabel: UILabel = {
+    private let secondImage: CodeImage = {
+        return CodeImage()
+    }()
+    
+    private let thirdImage: CodeImage = {
+        return CodeImage()
+    }()
+    
+    private let fourthImage: CodeImage = {
+        return CodeImage()
+    }()
+    
+    private let infoLabel: UILabel = {
         let label = UILabel()
+        label.font = .systemFont(ofSize: Constants.fontSize, weight: .semibold)
         return label
     }()
     
+    private lazy var imagesArray = [firstImage, secondImage, thirdImage, fourthImage]
+
+    private var enteredPassword = ""
+    private var confirmedPassword: String?
+    private var savedPassword: String?
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureUI()
+        initPassword()
     }
 }
 
@@ -66,20 +89,43 @@ private extension AuthorizationViewController {
             make.top.left.right.equalTo(view.safeAreaLayoutGuide)
         }
         
-        let infoLabel = UILabel()
-        infoLabel.text = Constants.createCodeText
-        infoLabel.font = .systemFont(ofSize: Constants.fontSize, weight: .semibold)
         codeView.addSubview(infoLabel)
         
         infoLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(Constants.bigSpacing)
             make.centerX.equalToSuperview()
         }
         
-        codeView.addSubview(passwordLabel)
+        codeView.addSubview(secondImage)
         
-        passwordLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
+        secondImage.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.right.equalTo(codeView.snp.centerX).offset(-Constants.spacing / 2)
+            make.width.height.equalTo(Constants.imageSize)
+        }
+        
+        codeView.addSubview(firstImage)
+        
+        firstImage.snp.makeConstraints { make in
+            make.top.equalTo(secondImage)
+            make.right.equalTo(secondImage.snp.left).offset(-Constants.spacing)
+            make.width.height.equalTo(secondImage)
+        }
+        
+        codeView.addSubview(thirdImage)
+        
+        thirdImage.snp.makeConstraints { make in
+            make.top.equalTo(secondImage)
+            make.left.equalTo(codeView.snp.centerX).offset(Constants.spacing / 2)
+            make.width.height.equalTo(secondImage)
+        }
+        
+        codeView.addSubview(fourthImage)
+        
+        fourthImage.snp.makeConstraints { make in
+            make.top.equalTo(secondImage)
+            make.left.equalTo(thirdImage.snp.right).offset(Constants.spacing)
+            make.width.height.equalTo(secondImage)
         }
         
         let buttonsView = UIView()
@@ -185,9 +231,7 @@ private extension AuthorizationViewController {
         
         let clearButton = CodeButton(imageName: Constants.clearButtonImage)
         clearButton.addAction(UIAction(handler: { _ in
-            if !self.password.isEmpty {
-                self.password.removeLast()
-            }
+            self.removeNumber()
         }), for: .touchUpInside)
         buttonsView.addSubview(clearButton)
         
@@ -199,6 +243,99 @@ private extension AuthorizationViewController {
     }
     
     func insertNumber(_ number: Int) {
-        password.append(String(number))
+        if enteredPassword.count < imagesArray.count {
+            enteredPassword.append(String(number))
+            imagesArray[enteredPassword.count - 1].isHighlighted = true
+            
+            if enteredPassword.count == imagesArray.count {
+                if savedPassword != nil {
+                    checkPassword()
+                } else if confirmedPassword != nil {
+                    checkConfirmPassword()
+                } else {
+                    initConfirmPassword()
+                }
+            }
+        }
+    }
+    
+    func removeNumber() {
+        if !enteredPassword.isEmpty {
+            imagesArray[enteredPassword.count - 1].isHighlighted = false
+            enteredPassword.removeLast()
+        }
+    }
+    
+    func checkPassword() {
+        if enteredPassword == savedPassword {
+            imagesArray.forEach({ codeImage in
+                codeImage.tintColor = .systemGreen
+            })
+            
+            Timer.scheduledTimer(withTimeInterval: Constants.shortDelay, repeats: false) { [self] _ in
+                view.window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+            }
+        } else {
+            imagesArray.forEach({ codeImage in
+                codeImage.tintColor = .systemRed
+            })
+            
+            resetImages()
+        }
+        
+        enteredPassword = .empty
+    }
+    
+    func checkConfirmPassword() {
+        if enteredPassword == confirmedPassword {
+            imagesArray.forEach({ codeImage in
+                codeImage.tintColor = .systemGreen
+            })
+            
+            UserDefaults.standard.set(confirmedPassword, forKey: .keyPassword)
+            initPassword()
+        } else {
+            imagesArray.forEach({ codeImage in
+                codeImage.tintColor = .systemRed
+            })
+        }
+        
+        resetImages()
+        
+        enteredPassword = .empty
+    }
+    
+    func initPassword() {
+        savedPassword = UserDefaults.standard.string(forKey: .keyPassword)
+        
+        if savedPassword != nil {
+            infoLabel.text = Constants.enterCodeText
+        } else {
+            infoLabel.text = Constants.createCodeText
+        }
+    }
+    
+    func initConfirmPassword() {
+        Timer.scheduledTimer(withTimeInterval: Constants.shortDelay, repeats: false) { [self] _ in
+            infoLabel.text = Constants.confirmCodeText
+            
+            imagesArray.forEach({ codeImage in
+                codeImage.isHighlighted = false
+            })
+        }
+        
+        confirmedPassword = enteredPassword
+        enteredPassword = .empty
+    }
+    
+    func resetImages() {
+        Timer.scheduledTimer(withTimeInterval: Constants.delay, repeats: false) { [self] _ in
+            imagesArray.forEach({ codeImage in
+                codeImage.isHighlighted = false
+            })
+            imagesArray.forEach({ codeImage in
+                codeImage.tintColor = .accent
+            })
+        }
     }
 }

@@ -9,7 +9,7 @@ import UIKit
 
 extension String {
     static let empty = String()
-    static let keyPasswoed = "KeyPassword"
+    static let keyPassword = "KeyPassword"
 }
 
 
