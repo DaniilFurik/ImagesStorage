@@ -16,4 +16,7 @@ extension String {
 final class GlobalConstants {
     static let verticalSpacing: CGFloat = 8
     static let horizontalSpacing: CGFloat = 16
+    static let spacing: CGFloat = 48
+    
+    static let higlightedPostfix = ".fill"
 }

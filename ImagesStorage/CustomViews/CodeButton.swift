@@ -7,12 +7,6 @@
 
 import UIKit
 
-// MARK: - Constants
-
-private enum Constants {
-    static let higlightedPostfix = ".fill"
-}
-
 class CodeButton: UIButton {
     // MARK: - Constructor
     
@@ -22,7 +16,7 @@ class CodeButton: UIButton {
         let configuration = UIImage.SymbolConfiguration(weight: .light)
         
         setBackgroundImage(UIImage(systemName: imageName, withConfiguration: configuration), for: .normal)
-        setBackgroundImage(UIImage(systemName: imageName + Constants.higlightedPostfix, withConfiguration: configuration), for: .highlighted)
+        setBackgroundImage(UIImage(systemName: imageName + GlobalConstants.higlightedPostfix, withConfiguration: configuration), for: .highlighted)
         
         imageView?.contentMode = .scaleAspectFit
     }

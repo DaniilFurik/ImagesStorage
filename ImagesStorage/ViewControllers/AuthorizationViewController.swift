@@ -273,7 +273,9 @@ private extension AuthorizationViewController {
             })
             
             Timer.scheduledTimer(withTimeInterval: Constants.shortDelay, repeats: false) { [self] _ in
-                view.window?.rootViewController = UINavigationController(rootViewController: MainViewController())
+                let nc = UINavigationController(rootViewController: MainViewController())
+                nc.navigationBar.isHidden = true
+                view.window?.rootViewController = nc
             }
         } else {
             imagesArray.forEach({ codeImage in
