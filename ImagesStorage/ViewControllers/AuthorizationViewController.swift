@@ -82,57 +82,63 @@ private extension AuthorizationViewController {
     func configureUI() {
         view.backgroundColor = .systemBackground
         
-        let codeView = UIView()
-        view.addSubview(codeView)
+        let headerView = UIView()
+        view.addSubview(headerView)
         
-        codeView.snp.makeConstraints { make in
+        headerView.snp.makeConstraints { make in
             make.top.left.right.equalTo(view.safeAreaLayoutGuide)
         }
         
-        codeView.addSubview(infoLabel)
+        headerView.addSubview(infoLabel)
         
         infoLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(Constants.bigSpacing)
             make.centerX.equalToSuperview()
         }
         
-        codeView.addSubview(secondImage)
+        let codeView = UIView()
+        headerView.addSubview(codeView)
         
-        secondImage.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.right.equalTo(codeView.snp.centerX).offset(-Constants.spacing / 2)
-            make.width.height.equalTo(Constants.imageSize)
+        codeView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
         }
         
         codeView.addSubview(firstImage)
         
         firstImage.snp.makeConstraints { make in
-            make.top.equalTo(secondImage)
-            make.right.equalTo(secondImage.snp.left).offset(-Constants.spacing)
-            make.width.height.equalTo(secondImage)
+            make.top.left.bottom.equalToSuperview()
+            make.width.height.equalTo(Constants.imageSize)
+        }
+        
+        codeView.addSubview(secondImage)
+
+        secondImage.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.left.equalTo(firstImage.snp.right).offset(Constants.spacing)
+            make.width.height.equalTo(firstImage)
         }
         
         codeView.addSubview(thirdImage)
         
         thirdImage.snp.makeConstraints { make in
-            make.top.equalTo(secondImage)
-            make.left.equalTo(codeView.snp.centerX).offset(Constants.spacing / 2)
+            make.top.equalToSuperview()
+            make.left.equalTo(secondImage.snp.right).offset(Constants.spacing)
             make.width.height.equalTo(secondImage)
         }
         
         codeView.addSubview(fourthImage)
         
         fourthImage.snp.makeConstraints { make in
-            make.top.equalTo(secondImage)
+            make.top.right.equalToSuperview()
             make.left.equalTo(thirdImage.snp.right).offset(Constants.spacing)
-            make.width.height.equalTo(secondImage)
+            make.width.height.equalTo(thirdImage)
         }
         
         let buttonsView = UIView()
         view.addSubview(buttonsView)
         
         buttonsView.snp.makeConstraints { make in
-            make.top.equalTo(codeView.snp.bottom)
+            make.top.equalTo(headerView.snp.bottom)
             make.bottom.left.right.equalTo(view.safeAreaLayoutGuide)
         }
         
