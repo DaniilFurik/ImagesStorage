@@ -253,14 +253,18 @@ private extension AuthorizationViewController {
             enteredPassword.append(String(number))
             imagesArray[enteredPassword.count - 1].isHighlighted = true
             
-            if enteredPassword.count == imagesArray.count {
-                if savedPassword != nil {
-                    checkPassword()
-                } else if confirmedPassword != nil {
-                    checkConfirmPassword()
-                } else {
-                    initConfirmPassword()
-                }
+            checkLastNumber()
+        }
+    }
+    
+    func checkLastNumber() {
+        if enteredPassword.count == imagesArray.count {
+            if savedPassword != nil {
+                checkPassword()
+            } else if confirmedPassword != nil {
+                checkConfirmPassword()
+            } else {
+                initConfirmPassword()
             }
         }
     }
@@ -300,7 +304,7 @@ private extension AuthorizationViewController {
                 codeImage.tintColor = .systemGreen
             })
             
-            UserDefaults.standard.set(confirmedPassword, forKey: .keyPassword)
+            StorageManager.shared.savePassword(password: confirmedPassword)
             initPassword()
         } else {
             imagesArray.forEach({ codeImage in
@@ -314,7 +318,7 @@ private extension AuthorizationViewController {
     }
     
     func initPassword() {
-        savedPassword = UserDefaults.standard.string(forKey: .keyPassword)
+        savedPassword = StorageManager.shared.getPassword()
         
         if savedPassword != nil {
             infoLabel.text = Constants.enterCodeText

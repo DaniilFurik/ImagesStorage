@@ -69,4 +69,12 @@ extension StorageManager {
     func saveCustomImages(customImages: [CustomImage]) {
         UserDefaults.standard.set(encodable: customImages, forKey: .keyCustomImagesList)
     }
+    
+    func savePassword(password: String?) {
+        UserDefaults.standard.set(password, forKey: .keyPassword)
+    }
+    
+    func getPassword() -> String? {
+        return UserDefaults.standard.string(forKey: .keyPassword)
+    }
 }

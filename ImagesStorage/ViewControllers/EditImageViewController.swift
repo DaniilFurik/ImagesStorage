@@ -55,7 +55,7 @@ class EditImageViewController: UIViewController {
     
     private let infoLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 0
+        label.numberOfLines = .zero
         label.textAlignment = .center
         return label
     }()
