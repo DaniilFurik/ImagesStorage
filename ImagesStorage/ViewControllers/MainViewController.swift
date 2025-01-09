@@ -49,7 +49,7 @@ private extension MainViewController {
         let navigationButton = UIButton(type: .system)
         navigationButton.setBackgroundImage(UIImage(systemName: Constants.navigationImage), for: .normal)
         navigationButton.addAction(UIAction(handler: { _ in
-            //self.navigationController?.pushViewController(AddImageViewController(), animated: true)
+            self.navigationController?.pushViewController(EditImageViewController(), animated: true)
         }), for: .touchUpInside)
         view.addSubview(navigationButton)
         

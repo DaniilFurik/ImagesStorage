@@ -1,8 +1,8 @@
 //
-//  AddImageViewController.swift
+//  EditImageViewController.swift
 //  ImagesStorage
 //
-//  Created by Даниил on 7.01.25.
+//  Created by Даниил on 9.01.25.
 //
 
 import UIKit
@@ -10,10 +10,10 @@ import UIKit
 // MARK: - Constants
 
 private enum Constants {
-    static let defaultImage = UIImage(systemName: GlobalConstants.plusImage)
+    
 }
 
-class AddImageViewController: UIViewController {
+class EditImageViewController: UIViewController {
     // MARK: - Properties
     
     private lazy var noteTextField: UITextField = {
@@ -37,29 +37,12 @@ class AddImageViewController: UIViewController {
         let imageView = UIImageView()
         imageView.isUserInteractionEnabled = true
         imageView.contentMode = .scaleAspectFit
-        imageView.image = Constants.defaultImage
         return imageView
-    }()
-    
-    private lazy var imageMenuButton: UIButton = {
-        let menu = UIMenu(title: GlobalConstants.menuTitle, children: [
-            UIAction(title: GlobalConstants.cameraTitle, image: UIImage(systemName: GlobalConstants.cameraImage)) { _ in
-                self.showPhotoPicker(with: .camera, delegate: self)
-            },
-            UIAction(title: GlobalConstants.libraryTitle, image: UIImage(systemName: GlobalConstants.libraryImage)) { _ in
-                self.showPhotoPicker(with: .photoLibrary, delegate: self)
-            }
-        ])
-        
-        let button = UIButton()
-        button.menu = menu
-        button.showsMenuAsPrimaryAction = true
-        
-        return button
     }()
     
     private var bottomOffset: CGFloat = .zero
     private var isFavorite = false
+    private var customImages = [CustomImage]()
     
     // MARK: - Lifecycle
     
@@ -82,7 +65,7 @@ class AddImageViewController: UIViewController {
     }
 }
 
-extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDelegate {
     // MARK: - Methods
 
     private func configureUI() {
@@ -159,12 +142,6 @@ extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDe
             make.height.equalTo(view).dividedBy(2)
         }
         
-        imageView.addSubview(imageMenuButton)
-        
-        imageMenuButton.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        
         noteTextField.setContentHuggingPriority(.defaultHigh, for: .vertical) // сохраняет минимальный размер по вертикали
         middleView.addSubview(noteTextField)
         
@@ -177,27 +154,14 @@ extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDe
     }
     
     private func backPressed() {
-        // если не добавлили картинку, то идем назад
-        if imageView.image == Constants.defaultImage {
-            navigationController?.popViewController(animated: true)
-        } else {
-            // если добавлили картинку, то сохраняем и идем на список всех картинок
-            saveNewImage()
-
-            navigationController?.pushViewController(EditImageViewController(), animated: false)
-            removeFromParent()
-        }
+        navigationController?.popViewController(animated: true)
         
         // удаляем наблюдатели, иначе они будут накапливаться
         removeObservers()
     }
+
     
-    private func addImageToScreen(_ image: UIImage) {
-        imageView.image = image
-        dateLabel.text = Manager.shared.getForrmatedDate(for: Date())
-    }
-    
-    private func saveNewImage() {
+    private func saveEditedImage() {
         let date =  Manager.shared.getDate(from: dateLabel.text!)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
         let imageFileName = StorageManager.shared.saveImage(image: imageView.image!) ?? .empty
         
@@ -255,16 +219,6 @@ extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDe
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
-    }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-            addImageToScreen(image)
-        } else if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            addImageToScreen(image)
-        }
-        
-        picker.dismiss(animated: true)
     }
     
     @objc private func didTap() {

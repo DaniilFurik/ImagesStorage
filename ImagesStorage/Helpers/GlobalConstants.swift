@@ -23,4 +23,16 @@ final class GlobalConstants {
     static let higlightedPostfix = ".fill"
     
     static let dateFormat = "dd MMM yyyy HH'h' mm'm' ss's'"
+    
+    static let backImage = "chevron.left"
+    static let favoriteImage = "heart"
+    static let cameraImage = "camera"
+    static let libraryImage = "photo"
+    static let plusImage = "plus.circle"
+    
+    static let menuTitle = "Select photo source"
+    static let cameraTitle = "Camera"
+    static let libraryTitle = "Photo Library"
+    
+    static let placeholder = "Enter your note"
 }
