@@ -52,4 +52,17 @@ extension StorageManager {
         let fileUrl = documentDirectory.appendingPathComponent(fileName)
         return UIImage(contentsOfFile: fileUrl.path)
     }
+    
+    func saveCustomImage(customImage: CustomImage) {
+        var array = getCustomImages()
+        array.insert(customImage, at: .zero)
+        
+        UserDefaults.standard.set(encodable: array, forKey: .keyCustomImagesList)
+    }
+    
+    func getCustomImages() -> [CustomImage] {
+        guard let list = UserDefaults.standard.get([CustomImage].self, forKey: .keyCustomImagesList) else { return [] }
+        
+        return list
+    }
 }

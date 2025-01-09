@@ -9,7 +9,9 @@ import UIKit
 
 extension String {
     static let empty = String()
+    
     static let keyPassword = "KeyPassword"
+    static let keyCustomImagesList = "KeyCustomImagesList"
 }
 
 
@@ -19,4 +21,6 @@ final class GlobalConstants {
     static let spacing: CGFloat = 48
     
     static let higlightedPostfix = ".fill"
+    
+    static let dateFormat = "dd MMM yyyy HH'h' mm'm' ss's'"
 }

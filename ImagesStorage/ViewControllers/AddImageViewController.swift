@@ -22,6 +22,8 @@ private enum Constants {
     static let libraryTitle = "Photo Library"
     
     static let placeholder = "Enter your note"
+    
+    static let defaultImage = UIImage(systemName: Constants.plusImage)
 }
 
 class AddImageViewController: UIViewController {
@@ -48,7 +50,7 @@ class AddImageViewController: UIViewController {
         let imageView = UIImageView()
         imageView.isUserInteractionEnabled = true
         imageView.contentMode = .scaleAspectFit
-        imageView.image = UIImage(systemName: Constants.plusImage)
+        imageView.image = Constants.defaultImage
         return imageView
     }()
     
@@ -70,13 +72,14 @@ class AddImageViewController: UIViewController {
     }()
     
     private var bottomOffset: CGFloat = .zero
+    private var isFavorite = false
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        initNotifications()
+        initObservers()
         configureUI()
         
         containerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap)))
@@ -85,6 +88,7 @@ class AddImageViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        // определяем где находится TF, чтобы не поднимать экран слишком высоко
         if let frame = noteTextField.frame(in: view) {
             bottomOffset = view.frame.height - frame.maxY - GlobalConstants.verticalSpacing
         }
@@ -93,26 +97,10 @@ class AddImageViewController: UIViewController {
 
 extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     // MARK: - Methods
-    
-    private func initNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardChangeFrame(_:)),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardChangeFrame(_:)),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-    
+
     private func configureUI() {
         view.backgroundColor = .systemBackground
-        
+
         view.addSubview(containerView)
         
         containerView.snp.makeConstraints { make in
@@ -129,7 +117,7 @@ extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDe
         let backButton = UIButton(type: .system)
         backButton.setImage(UIImage(systemName: Constants.backImage), for: .normal)
         backButton.addAction(UIAction(handler: { _ in
-            self.navigationController?.popViewController(animated: true)
+            self.backPressed()
         }), for: .touchUpInside)
         headerView.addSubview(backButton)
         
@@ -138,7 +126,6 @@ extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDe
             make.top.bottom.equalToSuperview()
         }
         
-        dateLabel.text = Date().description
         headerView.addSubview(dateLabel)
         
         dateLabel.snp.makeConstraints { make in
@@ -151,6 +138,13 @@ extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDe
         favotiteButton.tintColor = .systemRed
         favotiteButton.setImage(UIImage(systemName: Constants.favoriteImage), for: .normal)
         favotiteButton.addAction(UIAction(handler: { _ in
+            if self.isFavorite {
+                favotiteButton.setImage(UIImage(systemName: Constants.favoriteImage), for: .normal)
+            } else {
+                favotiteButton.setImage(UIImage(systemName: Constants.favoriteImage + GlobalConstants.higlightedPostfix), for: .normal)
+            }
+            
+            self.isFavorite.toggle()
             
         }), for: .touchUpInside)
         headerView.addSubview(favotiteButton)
@@ -195,6 +189,62 @@ extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDe
         }
     }
     
+    private func backPressed() {
+        // если не добавлили картинку, то идем назад
+        if imageView.image == Constants.defaultImage {
+            navigationController?.popViewController(animated: true)
+        } else {
+            // если добавлили картинку, то сохраняем и идем на список всех картинок
+            saveNewImage()
+            
+            // open new controller
+            navigationController?.popViewController(animated: true)
+        }
+        
+        // удаляем наблюдатели, иначе они будут накапливаться
+        removeObservers()
+    }
+    
+    private func addImageToScreen(_ image: UIImage) {
+        imageView.image = image
+        dateLabel.text = Manager.shared.getForrmatedDate(for: Date())
+    }
+    
+    private func saveNewImage() {
+        let date =  Manager.shared.getDate(from: dateLabel.text!)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
+        let imageFileName = StorageManager.shared.saveImage(image: imageView.image!) ?? .empty
+        
+        let customImage = CustomImage(
+            note: noteTextField.text ?? .empty,
+            isFavorite: isFavorite,
+            imageFileName: imageFileName,
+            date: date
+            )
+        
+        StorageManager.shared.saveCustomImage(customImage: customImage)
+    }
+    
+    private func initObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardChangeFrame(_:)),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardChangeFrame(_:)),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    private func removeObservers() {
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
     @objc private func keyboardChangeFrame(_ notification: Notification) {
         guard let info = notification.userInfo,
               let duration = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as? NSNumber)?.doubleValue,
@@ -220,19 +270,17 @@ extension AddImageViewController: UITextFieldDelegate, UIImagePickerControllerDe
         return true
     }
     
-    @objc private func didTap() {
-        view.endEditing(true)
-    }
-    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
-            imageView.image = image
+            addImageToScreen(image)
         } else if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
-            imageView.image = image
+            addImageToScreen(image)
         }
         
-        //Manager.shared.appSettings.avatarFileName = StorageManager.shared.saveImage(image: avatarImage.image!)!
-        
         picker.dismiss(animated: true)
+    }
+    
+    @objc private func didTap() {
+        view.endEditing(true)
     }
 }
