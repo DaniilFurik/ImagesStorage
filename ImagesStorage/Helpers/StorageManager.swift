@@ -65,4 +65,8 @@ extension StorageManager {
         
         return list
     }
+    
+    func saveCustomImages(customImages: [CustomImage]) {
+        UserDefaults.standard.set(encodable: customImages, forKey: .keyCustomImagesList)
+    }
 }

@@ -10,7 +10,13 @@ import UIKit
 // MARK: - Constants
 
 private enum Constants {
+    static let defaultFavoriteImage = UIImage(systemName: GlobalConstants.favoriteImage)
+    static let favoriteImage = UIImage(systemName: GlobalConstants.favoriteImage + GlobalConstants.higlightedPostfix)
     
+    static let arrowLeftImage = "arrow.left.circle"
+    static let arrowRightImage = "arrow.right.circle"
+    
+    static let buttonSize: CGFloat = 48
 }
 
 class EditImageViewController: UIViewController {
@@ -40,9 +46,23 @@ class EditImageViewController: UIViewController {
         return imageView
     }()
     
+    private let favotiteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintColor = .systemRed
+        button.setImage(UIImage(systemName: GlobalConstants.favoriteImage), for: .normal)
+        return button
+    }()
+    
+    private let infoLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        return label
+    }()
+    
     private var bottomOffset: CGFloat = .zero
-    private var isFavorite = false
     private var customImages = [CustomImage]()
+    private var currentIndex: Int = .zero
     
     // MARK: - Lifecycle
     
@@ -51,6 +71,7 @@ class EditImageViewController: UIViewController {
 
         initObservers()
         configureUI()
+        initData()
         
         containerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap)))
     }
@@ -70,7 +91,7 @@ extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDe
 
     private func configureUI() {
         view.backgroundColor = .systemBackground
-
+        
         view.addSubview(containerView)
         
         containerView.snp.makeConstraints { make in
@@ -104,18 +125,9 @@ extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDe
             make.centerX.equalToSuperview()
         }
         
-        let favotiteButton = UIButton(type: .system)
-        favotiteButton.tintColor = .systemRed
-        favotiteButton.setImage(UIImage(systemName: GlobalConstants.favoriteImage), for: .normal)
-        favotiteButton.addAction(UIAction(handler: { _ in
-            if self.isFavorite {
-                favotiteButton.setImage(UIImage(systemName: GlobalConstants.favoriteImage), for: .normal)
-            } else {
-                favotiteButton.setImage(UIImage(systemName: GlobalConstants.favoriteImage + GlobalConstants.higlightedPostfix), for: .normal)
-            }
-            
-            self.isFavorite.toggle()
-            
+        favotiteButton.addAction(UIAction(handler: { [self] _ in
+            customImages[currentIndex].isFavorite.toggle()
+            setFavoriteImage()
         }), for: .touchUpInside)
         headerView.addSubview(favotiteButton)
         
@@ -131,17 +143,19 @@ extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDe
         middleView.snp.makeConstraints { make in
             make.left.right.equalTo(headerView)
             make.top.equalTo(headerView.snp.bottom)
-            make.bottom.lessThanOrEqualToSuperview()
         }
-    
+        
         middleView.addSubview(imageView)
- 
+        
         imageView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(GlobalConstants.spacing)
             make.left.right.equalToSuperview()
             make.height.equalTo(view).dividedBy(2)
         }
         
+        noteTextField.addAction(UIAction(handler: { [self] _ in
+            customImages[currentIndex].note = noteTextField.text!
+        }), for: .allEditingEvents)
         noteTextField.setContentHuggingPriority(.defaultHigh, for: .vertical) // сохраняет минимальный размер по вертикали
         middleView.addSubview(noteTextField)
         
@@ -151,28 +165,99 @@ extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDe
             make.top.equalTo(imageView.snp.bottom).offset(GlobalConstants.verticalSpacing)
             make.bottom.equalToSuperview().inset(GlobalConstants.spacing)
         }
+        
+        let bottomView = UIView()
+        containerView.addSubview(bottomView)
+        
+        bottomView.snp.makeConstraints { make in
+            make.left.right.equalTo(headerView)
+            make.top.equalTo(middleView.snp.bottom)
+            make.bottom.lessThanOrEqualToSuperview()
+        }
+        
+        let leftButton = UIButton(type: .system)
+        leftButton.setBackgroundImage(UIImage(systemName: Constants.arrowLeftImage), for: .normal)
+        leftButton.addAction(UIAction(handler: { _ in
+            self.calculateCurrentIndex(isNext: false)
+            self.initCurrentCustomImage()
+        }), for: .touchUpInside)
+        bottomView.addSubview(leftButton)
+        
+        leftButton.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.left.equalToSuperview().offset(GlobalConstants.horizontalSpacing)
+            make.width.height.equalTo(Constants.buttonSize)
+        }
+        
+        let rightButton = UIButton(type: .system)
+        rightButton.setBackgroundImage(UIImage(systemName: Constants.arrowRightImage), for: .normal)
+        rightButton.addAction(UIAction(handler: { _ in
+            self.calculateCurrentIndex(isNext: true)
+            self.initCurrentCustomImage()
+        }), for: .touchUpInside)
+        bottomView.addSubview(rightButton)
+        
+        rightButton.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.right.equalToSuperview().inset(GlobalConstants.horizontalSpacing)
+            make.width.height.equalTo(Constants.buttonSize)
+        }
+        
+        bottomView.addSubview(infoLabel)
+        
+        infoLabel.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.left.equalTo(leftButton.snp.right).offset(GlobalConstants.horizontalSpacing)
+            make.right.equalTo(rightButton.snp.left).offset(-GlobalConstants.horizontalSpacing)
+        }
     }
     
     private func backPressed() {
         navigationController?.popViewController(animated: true)
         
+        StorageManager.shared.saveCustomImages(customImages: customImages)
+        
         // удаляем наблюдатели, иначе они будут накапливаться
         removeObservers()
     }
-
     
-    private func saveEditedImage() {
-        let date =  Manager.shared.getDate(from: dateLabel.text!)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
-        let imageFileName = StorageManager.shared.saveImage(image: imageView.image!) ?? .empty
+    private func initData() {
+        customImages = StorageManager.shared.getCustomImages()
         
-        let customImage = CustomImage(
-            note: noteTextField.text ?? .empty,
-            isFavorite: isFavorite,
-            imageFileName: imageFileName,
-            date: date
-            )
-        
-        StorageManager.shared.saveCustomImage(customImage: customImage)
+        initCurrentCustomImage()
+    }
+    
+    private func initCurrentCustomImage() {
+        imageView.image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
+        noteTextField.text = customImages[currentIndex].note
+        dateLabel.text = Manager.shared.getForrmatedDate(for: Date(timeIntervalSince1970: TimeInterval(customImages[currentIndex].date)))
+        infoLabel.text = "\(currentIndex + 1) pic out of \(customImages.count) pics"
+
+        setFavoriteImage()
+    }
+    
+    private func setFavoriteImage() {
+        if customImages[currentIndex].isFavorite {
+            favotiteButton.setImage(Constants.favoriteImage, for: .normal)
+        } else {
+            favotiteButton.setImage(Constants.defaultFavoriteImage, for: .normal)
+        }
+    }
+    
+    private func calculateCurrentIndex(isNext: Bool) {
+        if isNext {
+            if currentIndex == customImages.count - 1 {
+                currentIndex = 0
+            } else {
+                currentIndex += 1
+            }
+        } else {
+            if currentIndex == 0 {
+                currentIndex = customImages.count - 1
+            } else {
+                currentIndex -= 1
+            }
+        }
     }
     
     private func initObservers() {

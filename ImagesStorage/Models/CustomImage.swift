@@ -6,8 +6,8 @@
 //
 
 final class CustomImage: Codable {
-    let note: String
-    let isFavorite: Bool
+    var note: String
+    var isFavorite: Bool
     let imageFileName: String
     let date: Double
     
