@@ -17,6 +17,11 @@ private enum Constants {
     static let arrowRightImage = "arrow.right.circle"
     
     static let buttonSize: CGFloat = 48
+    
+    static let animationDuration: TimeInterval = 0.3
+    
+    static let picOutOfText = "pic out of"
+    static let picsText = "pics"
 }
 
 class EditImageViewController: UIViewController {
@@ -178,8 +183,7 @@ extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDe
         let leftButton = UIButton(type: .system)
         leftButton.setBackgroundImage(UIImage(systemName: Constants.arrowLeftImage), for: .normal)
         leftButton.addAction(UIAction(handler: { _ in
-            self.calculateCurrentIndex(isNext: false)
-            self.initCurrentCustomImage()
+            self.leftPressed()
         }), for: .touchUpInside)
         bottomView.addSubview(leftButton)
         
@@ -192,8 +196,7 @@ extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDe
         let rightButton = UIButton(type: .system)
         rightButton.setBackgroundImage(UIImage(systemName: Constants.arrowRightImage), for: .normal)
         rightButton.addAction(UIAction(handler: { _ in
-            self.calculateCurrentIndex(isNext: true)
-            self.initCurrentCustomImage()
+            self.rightPressed()
         }), for: .touchUpInside)
         bottomView.addSubview(rightButton)
         
@@ -224,14 +227,14 @@ extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDe
     private func initData() {
         customImages = StorageManager.shared.getCustomImages()
         
-        initCurrentCustomImage()
+        initCurrentCustomImage(from: StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)!)
     }
     
-    private func initCurrentCustomImage() {
-        imageView.image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
+    private func initCurrentCustomImage(from image: UIImage) {
+        imageView.image = image
         noteTextField.text = customImages[currentIndex].note
         dateLabel.text = Manager.shared.getForrmatedDate(for: Date(timeIntervalSince1970: TimeInterval(customImages[currentIndex].date)))
-        infoLabel.text = "\(currentIndex + 1) pic out of \(customImages.count) pics"
+        infoLabel.text = "\(currentIndex + 1) \(Constants.picOutOfText) \(customImages.count) \(Constants.picsText)"
 
         setFavoriteImage()
     }
@@ -256,6 +259,47 @@ extension EditImageViewController: UITextFieldDelegate, UINavigationControllerDe
                 currentIndex = customImages.count - 1
             } else {
                 currentIndex -= 1
+            }
+        }
+    }
+    
+    private func leftPressed() {
+        calculateCurrentIndex(isNext: false)
+        
+        animateTempImage(fromX: .zero, toX: -imageView.frame.width, image: imageView.image!)
+        
+        let image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
+        self.initCurrentCustomImage(from: image!)
+    }
+    
+    private func rightPressed() {
+        calculateCurrentIndex(isNext: true)
+        
+        let image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
+        animateTempImage(fromX: imageView.frame.maxX, toX: .zero, image: image!)
+    }
+    
+    private func animateTempImage(fromX: CGFloat, toX: CGFloat, image: UIImage) {
+        let tempImageView = UIImageView(image: image)
+        tempImageView.backgroundColor = .systemBackground
+        tempImageView.contentMode = .scaleAspectFit
+        imageView.addSubview(tempImageView)
+        
+        tempImageView.frame = CGRect(
+            x: fromX,
+            y: .zero,
+            width: imageView.frame.width,
+            height: imageView.frame.height
+        )
+        
+        UIView.animate(withDuration: Constants.animationDuration) {
+            tempImageView.frame.origin.x = toX
+        } completion: { _ in
+            tempImageView.removeFromSuperview()
+            
+            // если анимация была спарва
+            if toX == .zero {
+                self.initCurrentCustomImage(from: image)
             }
         }
     }
