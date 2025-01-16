@@ -28,6 +28,7 @@ class EditImageViewController: UIViewController {
         let label = UILabel()
         label.numberOfLines = .zero
         label.textAlignment = .center
+        label.font = .systemFont(ofSize: GlobalConstants.fontSize)
         return label
     }()
     
@@ -36,7 +37,19 @@ class EditImageViewController: UIViewController {
         view.delegate = self
         return view
     }()
-
+    
+    private let leftButton: UIButton  = {
+        let button = UIButton(type: .system)
+        button.setBackgroundImage(UIImage(systemName: Constants.arrowLeftImage), for: .normal)
+        return button
+    }()
+    
+    private let rightButton: UIButton  = {
+        let button = UIButton(type: .system)
+        button.setBackgroundImage(UIImage(systemName: Constants.arrowRightImage), for: .normal)
+        return button
+    }()
+    
     private var customImages = [CustomImage]()
     private var currentIndex: Int = .zero
     
@@ -80,8 +93,6 @@ extension EditImageViewController: IImageContainerViewDelegate {
             make.bottom.lessThanOrEqualToSuperview()
         }
         
-        let leftButton = UIButton(type: .system)
-        leftButton.setBackgroundImage(UIImage(systemName: Constants.arrowLeftImage), for: .normal)
         leftButton.addAction(UIAction(handler: { _ in
             self.leftPressed()
         }), for: .touchUpInside)
@@ -93,8 +104,6 @@ extension EditImageViewController: IImageContainerViewDelegate {
             make.width.height.equalTo(Constants.buttonSize)
         }
         
-        let rightButton = UIButton(type: .system)
-        rightButton.setBackgroundImage(UIImage(systemName: Constants.arrowRightImage), for: .normal)
         rightButton.addAction(UIAction(handler: { _ in
             self.rightPressed()
         }), for: .touchUpInside)
@@ -116,6 +125,8 @@ extension EditImageViewController: IImageContainerViewDelegate {
     }
     
     func animateTempImage(fromX: CGFloat, toX: CGFloat, image: UIImage) {
+        lockButtons(isEnabled: false)
+        
         let tempImageView = UIImageView(image: image)
         tempImageView.backgroundColor = .systemBackground
         tempImageView.contentMode = .scaleAspectFit
@@ -133,6 +144,7 @@ extension EditImageViewController: IImageContainerViewDelegate {
         UIView.animate(withDuration: Constants.animationDuration) {
             tempImageView.frame.origin.x = toX
         } completion: { [self] _ in
+            lockButtons(isEnabled: true)
             tempImageView.removeFromSuperview()
 
             // если анимация была спарва
@@ -140,6 +152,11 @@ extension EditImageViewController: IImageContainerViewDelegate {
                 imageContainerView.initCustomImage(from: customImages[currentIndex])
             }
         }
+    }
+    
+    private func lockButtons(isEnabled: Bool) {
+        rightButton.isUserInteractionEnabled = isEnabled
+        leftButton.isUserInteractionEnabled = isEnabled
     }
     
     private func leftPressed() {

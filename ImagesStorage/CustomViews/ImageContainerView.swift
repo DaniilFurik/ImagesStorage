@@ -51,6 +51,7 @@ final class ImageContainerView: UIView {
     
     private let dateLabel: UILabel = {
         let label = UILabel()
+        label.font = .systemFont(ofSize: GlobalConstants.fontSize)
         return label
     }()
     
@@ -85,7 +86,8 @@ final class ImageContainerView: UIView {
         addSubview(headerView)
         
         headerView.snp.makeConstraints { make in
-            make.left.right.top.equalToSuperview()
+            make.left.right.equalToSuperview()
+            make.top.equalToSuperview().offset(GlobalConstants.verticalSpacing)
         }
         
         let backButton = UIButton(type: .system)
