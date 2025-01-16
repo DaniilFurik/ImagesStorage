@@ -16,6 +16,8 @@ extension String {
 
 
 final class GlobalConstants {
+    static let defaultImage = UIImage(systemName: GlobalConstants.plusImage)
+    
     static let verticalSpacing: CGFloat = 8
     static let horizontalSpacing: CGFloat = 16
     static let spacing: CGFloat = 48

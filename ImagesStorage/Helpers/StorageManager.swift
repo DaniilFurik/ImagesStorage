@@ -18,6 +18,23 @@ final class StorageManager {
 extension StorageManager {
     // MARK: - Methods
     
+    func removeImage(name: String) {
+        guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first,
+                  name != .empty else {
+            return
+        }
+        
+        let fileURL = documentDirectory.appendingPathComponent(name)
+        
+        if FileManager.default.fileExists(atPath: fileURL.path) {
+            do {
+                try FileManager.default.removeItem(at: fileURL)
+            } catch let error {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
     func saveImage(image: UIImage) -> String? {
         guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first,
               let data = image.jpegData(compressionQuality: 1) else {
@@ -26,7 +43,7 @@ extension StorageManager {
         
         let fileName = UUID().uuidString
         let fileURL = documentDirectory.appendingPathComponent(fileName)
-        
+
         if FileManager.default.fileExists(atPath: fileURL.path) {
             do {
                 try FileManager.default.removeItem(at: fileURL)

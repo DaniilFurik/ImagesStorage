@@ -19,10 +19,10 @@ final class Manager {
 extension Manager {
     // MARK: - Methods
     
-    func getForrmatedDate(for date: Date) -> String {
+    func getFormattedDate(for date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = GlobalConstants.dateFormat
-        return formatter.string(from: Date())
+        return formatter.string(from: date)
     }
     
     func getDate(from string: String) -> Date? {
