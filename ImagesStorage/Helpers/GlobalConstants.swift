@@ -14,7 +14,6 @@ extension String {
     static let keyCustomImagesList = "KeyCustomImagesList"
 }
 
-
 final class GlobalConstants {
     static let defaultImage = UIImage(systemName: GlobalConstants.plusImage)
     

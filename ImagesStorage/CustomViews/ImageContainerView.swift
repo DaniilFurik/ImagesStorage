@@ -8,6 +8,8 @@
 import UIKit
 import SnapKit
 
+// MARK: - Protocol
+
 protocol IImageContainerViewDelegate: AnyObject {
     func editConstraints(offset: CGFloat, duration: TimeInterval)
     func backPressed()
@@ -178,10 +180,12 @@ extension ImageContainerView: UITextFieldDelegate, UIImagePickerControllerDelega
         }
         
         // если была выбрана новая картинка в пикере
-        if isNewImage {
+        if isNewImage,
+        let image = imageView.image,
+        let dateText = dateLabel.text {
             StorageManager.shared.removeImage(name: customImage.imageFileName)
-            customImage.imageFileName = StorageManager.shared.saveImage(image: imageView.image!) ?? .empty
-            customImage.date = Manager.shared.getDate(from: dateLabel.text!)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
+            customImage.imageFileName = StorageManager.shared.saveImage(image: image) ?? .empty
+            customImage.date = Manager.shared.getDate(from: dateText)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
             
             isNewImage = false
         }
@@ -218,10 +222,11 @@ extension ImageContainerView: UITextFieldDelegate, UIImagePickerControllerDelega
     
     private func calculateOffset() {
         // определяем где находится TF, чтобы не поднимать экран слишком высоко
-        guard let superview else { return }
+        guard let superview,
+              let window = superview.window else { return }
         
         let globalFrame = noteTextField.convert(noteTextField.bounds, to: superview.window)
-        bottomOffset = superview.window!.frame.height - globalFrame.maxY - GlobalConstants.verticalSpacing
+        bottomOffset = window.frame.height - globalFrame.maxY - GlobalConstants.verticalSpacing
     }
     
     private func addImageToScreen(_ image: UIImage) {

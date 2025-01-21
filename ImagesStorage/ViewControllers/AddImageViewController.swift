@@ -52,7 +52,9 @@ extension AddImageViewController: IImageContainerViewDelegate {
     }
     
     func editConstraints(offset: CGFloat, duration: TimeInterval) {
-        imageContainerView.superview!.snp.updateConstraints { make in
+        guard let superview = imageContainerView.superview else { return }
+        
+        superview.snp.updateConstraints { make in
             make.bottom.top.equalTo(view.safeAreaLayoutGuide).offset(offset)
         }
         

@@ -161,7 +161,7 @@ extension EditImageViewController: IImageContainerViewDelegate {
     
     private func leftPressed() {
         let image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
-        animateTempImage(fromX: .zero, toX: -view.frame.width, image: image!)
+        animateTempImage(fromX: .zero, toX: -view.frame.width, image: image ?? UIImage())
         
         prepareForNewImage(isNext: false)
         
@@ -172,7 +172,7 @@ extension EditImageViewController: IImageContainerViewDelegate {
         prepareForNewImage(isNext: true)
         
         let image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
-        animateTempImage(fromX: view.frame.width, toX: .zero, image: image!)
+        animateTempImage(fromX: view.frame.width, toX: .zero, image: image ?? UIImage())
     }
     
     private func prepareForNewImage(isNext: Bool) {
@@ -223,7 +223,9 @@ extension EditImageViewController: IImageContainerViewDelegate {
     }
     
     func editConstraints(offset: CGFloat, duration: TimeInterval) {
-        imageContainerView.superview!.snp.updateConstraints { make in
+        guard let superview = imageContainerView.superview else { return }
+        
+        superview.snp.updateConstraints { make in
             make.bottom.top.equalTo(view.safeAreaLayoutGuide).offset(offset)
         }
         
