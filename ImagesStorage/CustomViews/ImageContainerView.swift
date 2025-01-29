@@ -10,7 +10,7 @@ import SnapKit
 
 // MARK: - Protocol
 
-protocol IImageContainerViewDelegate: AnyObject {
+protocol ImageContainerViewDelegate: AnyObject {
     func editConstraints(offset: CGFloat, duration: TimeInterval)
     func backPressed()
     func showPicker(with source: UIImagePickerController.SourceType, delegate: (UIImagePickerControllerDelegate & UINavigationControllerDelegate))
@@ -75,7 +75,7 @@ final class ImageContainerView: UIView {
     private var isNewImage = false
     private var bottomOffset: CGFloat = .zero
     private var customImage = CustomImage()
-    weak var delegate: IImageContainerViewDelegate?
+    weak var delegate: ImageContainerViewDelegate?
     
     // MARK: - Lifecycle
     

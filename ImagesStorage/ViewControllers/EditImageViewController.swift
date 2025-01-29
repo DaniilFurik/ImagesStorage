@@ -59,16 +59,15 @@ class EditImageViewController: UIViewController {
         super.viewDidLoad()
         
         configureUI()
-        initData()
         
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap)))
     }
 }
 
-extension EditImageViewController: IImageContainerViewDelegate {
+private extension EditImageViewController {
     // MARK: - Methods
 
-    private func configureUI() {
+    func configureUI() {
         view.backgroundColor = .systemBackground
         
         let containerView = UIView()
@@ -154,12 +153,12 @@ extension EditImageViewController: IImageContainerViewDelegate {
         }
     }
     
-    private func lockButtons(isEnabled: Bool) {
+    func lockButtons(isEnabled: Bool) {
         rightButton.isUserInteractionEnabled = isEnabled
         leftButton.isUserInteractionEnabled = isEnabled
     }
     
-    private func leftPressed() {
+    func leftPressed() {
         let image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
         animateTempImage(fromX: .zero, toX: -view.frame.width, image: image ?? UIImage())
         
@@ -168,14 +167,14 @@ extension EditImageViewController: IImageContainerViewDelegate {
         imageContainerView.initCustomImage(from: customImages[currentIndex])
     }
     
-    private func rightPressed() {
+    func rightPressed() {
         prepareForNewImage(isNext: true)
         
         let image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
         animateTempImage(fromX: view.frame.width, toX: .zero, image: image ?? UIImage())
     }
     
-    private func prepareForNewImage(isNext: Bool) {
+    func prepareForNewImage(isNext: Bool) {
         if let customImage = imageContainerView.getCustomImageForSaving() {
             customImages[currentIndex] = customImage
         }
@@ -184,25 +183,7 @@ extension EditImageViewController: IImageContainerViewDelegate {
         infoLabel.text = "\(currentIndex + 1) \(Constants.picOutOfText) \(customImages.count) \(Constants.picsText)"
     }
     
-    func backPressed() {
-        if let customImage = imageContainerView.getCustomImageForSaving() {
-            customImages[currentIndex] = customImage
-        }
-        
-        navigationController?.popViewController(animated: true)
-        
-        StorageManager.shared.saveCustomImages(customImages: customImages)
-    }
-    
-    private func initData() {
-        customImages = StorageManager.shared.getCustomImages()
-        
-        infoLabel.text = "\(currentIndex + 1) \(Constants.picOutOfText) \(customImages.count) \(Constants.picsText)"
-        
-        imageContainerView.initCustomImage(from: customImages[currentIndex])
-    }
-    
-    private func calculateCurrentIndex(isNext: Bool) {
+    func calculateCurrentIndex(isNext: Bool) {
         if isNext {
             if currentIndex == customImages.count - 1 {
                 currentIndex = 0
@@ -218,6 +199,34 @@ extension EditImageViewController: IImageContainerViewDelegate {
         }
     }
 
+    @objc private func didTap() {
+        view.endEditing(true)
+    }
+}
+
+extension EditImageViewController {
+    func initData(images: [CustomImage], index: Int = .zero) {
+        currentIndex = index
+        customImages = images
+        
+        infoLabel.text = "\(currentIndex + 1) \(Constants.picOutOfText) \(customImages.count) \(Constants.picsText)"
+        
+        imageContainerView.initCustomImage(from: customImages[currentIndex])
+    }
+}
+
+extension EditImageViewController: ImageContainerViewDelegate {
+    
+    func backPressed() {
+        if let customImage = imageContainerView.getCustomImageForSaving() {
+            customImages[currentIndex] = customImage
+        }
+        
+        navigationController?.popViewController(animated: true)
+        
+        StorageManager.shared.saveCustomImages(customImages: customImages)
+    }
+    
     func showPicker(with source: UIImagePickerController.SourceType, delegate: (any UIImagePickerControllerDelegate & UINavigationControllerDelegate)) {
         showPhotoPicker(with: source, delegate: delegate)
     }
@@ -232,9 +241,5 @@ extension EditImageViewController: IImageContainerViewDelegate {
         UIView.animate(withDuration: duration) {
             self.view.layoutIfNeeded()
         }
-    }
-
-    @objc private func didTap() {
-        view.endEditing(true)
     }
 }

@@ -27,7 +27,7 @@ class AddImageViewController: UIViewController {
     }
 }
 
-extension AddImageViewController: IImageContainerViewDelegate {
+extension AddImageViewController: ImageContainerViewDelegate {
     // MARK: - Methods
     
     private func configureUI() {
@@ -68,7 +68,12 @@ extension AddImageViewController: IImageContainerViewDelegate {
             // если добавлили картинку, то сохраняем и идем на список всех картинок
             StorageManager.shared.saveCustomImage(customImage: customImage)
             
-            navigationController?.pushViewController(EditImageViewController(), animated: false)
+            let controller = EditImageViewController()
+            
+            let customImages = StorageManager.shared.getCustomImages()
+            controller.initData(images: customImages)
+            
+            navigationController?.pushViewController(controller, animated: false)
             removeFromParent()
         } else {
             // если не добавлили картинку, то идем назад
