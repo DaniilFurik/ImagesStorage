@@ -61,15 +61,6 @@ extension StorageManager {
         }
     }
     
-    private func getImage(fileName: String) -> UIImage? {
-        guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-            return nil
-        }
-        
-        let fileUrl = documentDirectory.appendingPathComponent(fileName)
-        return UIImage(contentsOfFile: fileUrl.path)
-    }
-    
     func saveCustomImage(customImage: CustomPic) {
         var array = getCustomImages()
         array.insert(customImage, at: .zero)
@@ -95,6 +86,15 @@ extension StorageManager {
     func saveCustomImages(customImages: [CustomPic]) {
         let array = customImages.map { $0.info }
         UserDefaults.standard.set(encodable: array, forKey: .keyCustomImagesList)
+    }
+    
+    private func getImage(fileName: String) -> UIImage? {
+        guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        
+        let fileUrl = documentDirectory.appendingPathComponent(fileName)
+        return UIImage(contentsOfFile: fileUrl.path)
     }
     
     func savePassword(password: String?) {

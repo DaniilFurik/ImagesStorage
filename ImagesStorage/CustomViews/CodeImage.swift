@@ -24,7 +24,5 @@ class CodeImage: UIImageView {
         
         image = UIImage(systemName: Constants.defaultImage, withConfiguration: configuration)
         highlightedImage = UIImage(systemName: Constants.hightlightedImage, withConfiguration: configuration)
-        
-        //.imageView?.contentMode = .scaleAspectFit
     }
 }

@@ -8,13 +8,17 @@
 import UIKit
 
 class CollectionViewCell: UICollectionViewCell {
+    // MARK: - Properties
+    
     static var identifier: String { "\(Self.self)" }
-
+    
     private let myImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
+    
+    // MARK: - Lifecycle
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -28,10 +32,18 @@ class CollectionViewCell: UICollectionViewCell {
         myImageView.image = nil
     }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension CollectionViewCell {
+    // MARK: - Methods
+    
     func configureUI() {
         contentView.roundCorners()
         contentView.addSubview(myImageView)
-
+        
         myImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -39,9 +51,5 @@ class CollectionViewCell: UICollectionViewCell {
     
     func configure(with model: CustomPic) {
         myImageView.image = model.image
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }
