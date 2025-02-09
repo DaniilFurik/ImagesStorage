@@ -11,13 +11,6 @@ final class CustomImage: Codable {
     var imageFileName: String
     var date: Double
     
-    init(note: String, isFavorite: Bool, imageFileName: String, date: Double) {
-        self.note = note
-        self.isFavorite = isFavorite
-        self.imageFileName = imageFileName
-        self.date = date
-    }
-    
     init () {
         note = .empty
         isFavorite = false

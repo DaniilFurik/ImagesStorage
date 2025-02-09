@@ -63,7 +63,7 @@ class AuthorizationViewController: UIViewController {
     
     private lazy var imagesArray = [firstImage, secondImage, thirdImage, fourthImage]
 
-    private var enteredPassword = ""
+    private var enteredPassword = String.empty
     private var confirmedPassword: String?
     private var savedPassword: String?
     
