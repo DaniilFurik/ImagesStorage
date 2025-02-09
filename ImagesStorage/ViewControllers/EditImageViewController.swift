@@ -50,7 +50,7 @@ class EditImageViewController: UIViewController {
         return button
     }()
     
-    private var customImages = [CustomImage]()
+    private var customImages = [CustomPic]()
     private var currentIndex: Int = .zero
     
     // MARK: - Lifecycle
@@ -159,8 +159,8 @@ private extension EditImageViewController {
     }
     
     func leftPressed() {
-        let image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
-        animateTempImage(fromX: .zero, toX: -view.frame.width, image: image ?? UIImage())
+        let image = customImages[currentIndex].image
+        animateTempImage(fromX: .zero, toX: -view.frame.width, image: image)
         
         prepareForNewImage(isNext: false)
         
@@ -170,8 +170,8 @@ private extension EditImageViewController {
     func rightPressed() {
         prepareForNewImage(isNext: true)
         
-        let image = StorageManager.shared.getImage(fileName: customImages[currentIndex].imageFileName)
-        animateTempImage(fromX: view.frame.width, toX: .zero, image: image ?? UIImage())
+        let image = customImages[currentIndex].image
+        animateTempImage(fromX: view.frame.width, toX: .zero, image: image)
     }
     
     func prepareForNewImage(isNext: Bool) {
@@ -205,7 +205,7 @@ private extension EditImageViewController {
 }
 
 extension EditImageViewController {
-    func initData(images: [CustomImage], index: Int = .zero) {
+    func initData(images: [CustomPic], index: Int = .zero) {
         currentIndex = index
         customImages = images
         

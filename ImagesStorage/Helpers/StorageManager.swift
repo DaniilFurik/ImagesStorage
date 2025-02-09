@@ -61,7 +61,7 @@ extension StorageManager {
         }
     }
     
-    func getImage(fileName: String) -> UIImage? {
+    private func getImage(fileName: String) -> UIImage? {
         guard let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
             return nil
         }
@@ -70,21 +70,31 @@ extension StorageManager {
         return UIImage(contentsOfFile: fileUrl.path)
     }
     
-    func saveCustomImage(customImage: CustomImage) {
+    func saveCustomImage(customImage: CustomPic) {
         var array = getCustomImages()
         array.insert(customImage, at: .zero)
         
-        UserDefaults.standard.set(encodable: array, forKey: .keyCustomImagesList)
-    }
-    
-    func getCustomImages() -> [CustomImage] {
-        guard let list = UserDefaults.standard.get([CustomImage].self, forKey: .keyCustomImagesList) else { return [] }
+        let imagesinfo = array.map { $0.info }
         
-        return list
+        UserDefaults.standard.set(encodable: imagesinfo, forKey: .keyCustomImagesList)
     }
     
-    func saveCustomImages(customImages: [CustomImage]) {
-        UserDefaults.standard.set(encodable: customImages, forKey: .keyCustomImagesList)
+    func getCustomImages() -> [CustomPic] {
+        guard let picsInfo = UserDefaults.standard.get([PicInfo].self, forKey: .keyCustomImagesList) else { return [] }
+        
+        var array = [CustomPic]()
+        
+        for item in picsInfo {
+            let image = getImage(fileName: item.imageFileName) ?? UIImage()
+            array.append(CustomPic(info: item, image: image))
+        }
+        
+        return array
+    }
+    
+    func saveCustomImages(customImages: [CustomPic]) {
+        let array = customImages.map { $0.info }
+        UserDefaults.standard.set(encodable: array, forKey: .keyCustomImagesList)
     }
     
     func savePassword(password: String?) {

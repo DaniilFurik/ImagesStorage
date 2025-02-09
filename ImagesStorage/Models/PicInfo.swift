@@ -1,11 +1,11 @@
 //
-//  CustomImage.swift
+//  ImageInfo.swift
 //  ImagesStorage
 //
-//  Created by Даниил on 7.01.25.
+//  Created by Даниил on 10.02.25.
 //
 
-final class CustomImage: Codable {
+final class PicInfo: Codable {
     var note: String
     var isFavorite: Bool
     var imageFileName: String

@@ -37,9 +37,8 @@ class CollectionViewCell: UICollectionViewCell {
         }
     }
     
-    func configure(with model: CustomImage) {
-        let image = StorageManager.shared.getImage(fileName: model.imageFileName)
-        myImageView.image = image
+    func configure(with model: CustomPic) {
+        myImageView.image = model.image
     }
     
     required init?(coder: NSCoder) {

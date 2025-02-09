@@ -74,7 +74,7 @@ final class ImageContainerView: UIView {
     
     private var isNewImage = false
     private var bottomOffset: CGFloat = .zero
-    private var customImage = CustomImage()
+    private var customImage = CustomPic()
     weak var delegate: ImageContainerViewDelegate?
     
     // MARK: - Lifecycle
@@ -113,7 +113,7 @@ final class ImageContainerView: UIView {
         }
         
         favoriteButton.addAction(UIAction(handler: { [self] _ in
-            customImage.isFavorite.toggle()
+            customImage.info.isFavorite.toggle()
             setFavoriteImage()
         }), for: .touchUpInside)
         headerView.addSubview(favoriteButton)
@@ -148,7 +148,7 @@ final class ImageContainerView: UIView {
         }
         
         noteTextField.addAction(UIAction(handler: { [self] _ in
-            customImage.note = noteTextField.text ?? .empty
+            customImage.info.note = noteTextField.text ?? .empty
         }), for: .allEditingEvents)
 
         middleView.addSubview(noteTextField)
@@ -174,7 +174,7 @@ final class ImageContainerView: UIView {
 extension ImageContainerView: UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     // MARK: - Methods
     
-    func getCustomImageForSaving() -> CustomImage? {
+    func getCustomImageForSaving() -> CustomPic? {
         if  imageView.image == GlobalConstants.defaultImage {
             return nil
         }
@@ -183,25 +183,25 @@ extension ImageContainerView: UITextFieldDelegate, UIImagePickerControllerDelega
         if isNewImage,
         let image = imageView.image,
         let dateText = dateLabel.text {
-            StorageManager.shared.removeImage(name: customImage.imageFileName)
-            customImage.imageFileName = StorageManager.shared.saveImage(image: image) ?? .empty
-            customImage.date = Manager.shared.getDate(from: dateText)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
+            StorageManager.shared.removeImage(name: customImage.info.imageFileName)
+            customImage.info.imageFileName = StorageManager.shared.saveImage(image: image) ?? .empty
+            customImage.info.date = Manager.shared.getDate(from: dateText)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
             
             isNewImage = false
         }
         
-        customImage.note = noteTextField.text ?? .empty
+        customImage.info.note = noteTextField.text ?? .empty
         //customImage.isFavorite - меняется в клике на кнопку
         
         return customImage
     }
     
-    func initCustomImage(from customImage: CustomImage) {
+    func initCustomImage(from customImage: CustomPic) {
         self.customImage = customImage
         
-        imageView.image = StorageManager.shared.getImage(fileName: customImage.imageFileName)
-        dateLabel.text = Manager.shared.getFormattedDate(for: Date(timeIntervalSince1970: TimeInterval(customImage.date)))
-        noteTextField.text = customImage.note
+        imageView.image = customImage.image
+        dateLabel.text = Manager.shared.getFormattedDate(for: Date(timeIntervalSince1970: TimeInterval(customImage.info.date)))
+        noteTextField.text = customImage.info.note
         
         setFavoriteImage()
     }
@@ -213,7 +213,7 @@ extension ImageContainerView: UITextFieldDelegate, UIImagePickerControllerDelega
     }
     
     private func setFavoriteImage() {
-        if customImage.isFavorite {
+        if customImage.info.isFavorite {
             favoriteButton.setImage(Constants.favoriteImage, for: .normal)
         } else {
             favoriteButton.setImage(Constants.defaultFavoriteImage, for: .normal)

@@ -32,7 +32,7 @@ class MainViewController: UIViewController {
         return collectionView
     }()
     
-    private var customImages = [CustomImage]()
+    private var customImages = [CustomPic]()
     
     // MARK: - Lifecycle
     
