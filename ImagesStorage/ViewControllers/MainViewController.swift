@@ -32,7 +32,7 @@ class MainViewController: UIViewController {
         return collectionView
     }()
     
-    private var customImages = [CustomPic]()
+    private var customPics = [CustomPic]()
     
     // MARK: - Lifecycle
     
@@ -45,7 +45,7 @@ class MainViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        customImages = StorageManager.shared.getCustomImages()
+        customPics = StorageManager.shared.getCustomPics()
         collectionView.reloadData()
     }
 }
@@ -83,11 +83,11 @@ private extension MainViewController {
 
 extension MainViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return customImages.count + 1
+        return customPics.count + 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if indexPath.row == customImages.count {
+        if indexPath.row == customPics.count {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: InsertCollectionViewCell.identifier, for: indexPath) as? InsertCollectionViewCell else {
                 return UICollectionViewCell()
             }
@@ -102,7 +102,7 @@ extension MainViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
                 return UICollectionViewCell()
             }
             
-            cell.configure(with: customImages[indexPath.row])
+            cell.configure(with: customPics[indexPath.row])
             
             return cell
         }
@@ -120,7 +120,7 @@ extension MainViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        if indexPath.row == customImages.count {
+        if indexPath.row == customPics.count {
             return false
         }
         
@@ -129,7 +129,7 @@ extension MainViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let controller = EditImageViewController()
-        controller.initData(images: customImages, index: indexPath.row)
+        controller.initData(images: customPics, index: indexPath.row)
         navigationController?.pushViewController(controller, animated: true)
     }
 }

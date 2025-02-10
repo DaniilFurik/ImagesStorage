@@ -11,7 +11,7 @@ extension String {
     static let empty = String()
     
     static let keyPassword = "KeyPassword"
-    static let keyCustomImagesList = "KeyCustomImagesList"
+    static let keyCustomPicsList = "KeyCustomImagesList"
 }
 
 final class GlobalConstants {

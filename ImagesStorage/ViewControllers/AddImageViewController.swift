@@ -70,8 +70,8 @@ extension AddImageViewController: ImageContainerViewDelegate {
             
             let controller = EditImageViewController()
             
-            let customImages = StorageManager.shared.getCustomImages()
-            controller.initData(images: customImages)
+            let customPics = StorageManager.shared.getCustomPics()
+            controller.initData(images: customPics)
             
             navigationController?.pushViewController(controller, animated: false)
             removeFromParent()

@@ -50,7 +50,7 @@ class EditImageViewController: UIViewController {
         return button
     }()
     
-    private var customImages = [CustomPic]()
+    private var customPics = [CustomPic]()
     private var currentIndex: Int = .zero
     
     // MARK: - Lifecycle
@@ -148,7 +148,7 @@ private extension EditImageViewController {
 
             // если анимация была спарва
             if toX == .zero {
-                imageContainerView.initCustomImage(from: customImages[currentIndex])
+                imageContainerView.initCustomImage(from: customPics[currentIndex])
             }
         }
     }
@@ -159,40 +159,40 @@ private extension EditImageViewController {
     }
     
     func leftPressed() {
-        let image = customImages[currentIndex].image
+        let image = customPics[currentIndex].image
         animateTempImage(fromX: .zero, toX: -view.frame.width, image: image)
         
         prepareForNewImage(isNext: false)
         
-        imageContainerView.initCustomImage(from: customImages[currentIndex])
+        imageContainerView.initCustomImage(from: customPics[currentIndex])
     }
     
     func rightPressed() {
         prepareForNewImage(isNext: true)
         
-        let image = customImages[currentIndex].image
+        let image = customPics[currentIndex].image
         animateTempImage(fromX: view.frame.width, toX: .zero, image: image)
     }
     
     func prepareForNewImage(isNext: Bool) {
         if let customImage = imageContainerView.getCustomImageForSaving() {
-            customImages[currentIndex] = customImage
+            customPics[currentIndex] = customImage
         }
         
         calculateCurrentIndex(isNext: isNext)
-        infoLabel.text = "\(currentIndex + 1) \(Constants.picOutOfText) \(customImages.count) \(Constants.picsText)"
+        infoLabel.text = "\(currentIndex + 1) \(Constants.picOutOfText) \(customPics.count) \(Constants.picsText)"
     }
     
     func calculateCurrentIndex(isNext: Bool) {
         if isNext {
-            if currentIndex == customImages.count - 1 {
+            if currentIndex == customPics.count - 1 {
                 currentIndex = 0
             } else {
                 currentIndex += 1
             }
         } else {
             if currentIndex == 0 {
-                currentIndex = customImages.count - 1
+                currentIndex = customPics.count - 1
             } else {
                 currentIndex -= 1
             }
@@ -207,11 +207,11 @@ private extension EditImageViewController {
 extension EditImageViewController {
     func initData(images: [CustomPic], index: Int = .zero) {
         currentIndex = index
-        customImages = images
+        customPics = images
         
-        infoLabel.text = "\(currentIndex + 1) \(Constants.picOutOfText) \(customImages.count) \(Constants.picsText)"
+        infoLabel.text = "\(currentIndex + 1) \(Constants.picOutOfText) \(customPics.count) \(Constants.picsText)"
         
-        imageContainerView.initCustomImage(from: customImages[currentIndex])
+        imageContainerView.initCustomImage(from: customPics[currentIndex])
     }
 }
 
@@ -219,12 +219,12 @@ extension EditImageViewController: ImageContainerViewDelegate {
     
     func backPressed() {
         if let customImage = imageContainerView.getCustomImageForSaving() {
-            customImages[currentIndex] = customImage
+            customPics[currentIndex] = customImage
         }
         
         navigationController?.popViewController(animated: true)
         
-        StorageManager.shared.saveCustomImages(customImages: customImages)
+        StorageManager.shared.saveCustomPics(customPics: customPics)
     }
     
     func showPicker(with source: UIImagePickerController.SourceType, delegate: (any UIImagePickerControllerDelegate & UINavigationControllerDelegate)) {

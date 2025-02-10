@@ -62,16 +62,16 @@ extension StorageManager {
     }
     
     func saveCustomImage(customImage: CustomPic) {
-        var array = getCustomImages()
+        var array = getCustomPics()
         array.insert(customImage, at: .zero)
         
         let imagesinfo = array.map { $0.info }
         
-        UserDefaults.standard.set(encodable: imagesinfo, forKey: .keyCustomImagesList)
+        UserDefaults.standard.set(encodable: imagesinfo, forKey: .keyCustomPicsList)
     }
     
-    func getCustomImages() -> [CustomPic] {
-        guard let picsInfo = UserDefaults.standard.get([PicInfo].self, forKey: .keyCustomImagesList) else { return [] }
+    func getCustomPics() -> [CustomPic] {
+        guard let picsInfo = UserDefaults.standard.get([PicInfo].self, forKey: .keyCustomPicsList) else { return [] }
         
         var array = [CustomPic]()
         
@@ -83,9 +83,9 @@ extension StorageManager {
         return array
     }
     
-    func saveCustomImages(customImages: [CustomPic]) {
-        let array = customImages.map { $0.info }
-        UserDefaults.standard.set(encodable: array, forKey: .keyCustomImagesList)
+    func saveCustomPics(customPics: [CustomPic]) {
+        let array = customPics.map { $0.info }
+        UserDefaults.standard.set(encodable: array, forKey: .keyCustomPicsList)
     }
     
     private func getImage(fileName: String) -> UIImage? {
