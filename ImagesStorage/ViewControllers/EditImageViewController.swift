@@ -205,7 +205,7 @@ private extension EditImageViewController {
 }
 
 extension EditImageViewController {
-    func initData(images: [CustomPic], index: Int = .zero) {
+    func initData(images: [CustomPic], index: Int) {
         currentIndex = index
         customPics = images
         

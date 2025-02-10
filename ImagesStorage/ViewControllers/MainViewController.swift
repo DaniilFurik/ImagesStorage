@@ -45,13 +45,15 @@ class MainViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        customPics = StorageManager.shared.getCustomPics()
-        collectionView.reloadData()
+        StorageManager.shared.getCustomPics { [weak self] pics in
+            self?.customPics = pics
+            self?.collectionView.reloadData()
+        }
     }
 }
 
 private extension MainViewController {
-    // MARK: - Methods
+    // MARK: - Private Methods
     
     func configureUI() {
         view.backgroundColor = .systemBackground
@@ -82,6 +84,12 @@ private extension MainViewController {
 }
 
 extension MainViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource {
+    // MARK: - Methods
+    
+    func initData(customPics: [CustomPic]) {
+        self.customPics = customPics
+    }
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return customPics.count + 1
     }
@@ -93,7 +101,9 @@ extension MainViewController: UICollectionViewDelegateFlowLayout, UICollectionVi
             }
     
             cell.configure(with: {
-                self.navigationController?.pushViewController(AddImageViewController(), animated: true)
+                let controller = AddImageViewController()
+                controller.initData(customPics: self.customPics)
+                self.navigationController?.pushViewController(controller, animated: true)
             })
             
             return cell

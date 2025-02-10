@@ -66,6 +66,7 @@ class AuthorizationViewController: UIViewController {
     private var enteredPassword = String.empty
     private var confirmedPassword: String?
     private var savedPassword: String?
+    private var customPics = [CustomPic]()
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -73,6 +74,10 @@ class AuthorizationViewController: UIViewController {
         
         configureUI()
         initPassword()
+        
+        StorageManager.shared.getCustomPics { [weak self] pics in
+            self?.customPics = pics
+        }
     }
 }
 
@@ -283,7 +288,9 @@ private extension AuthorizationViewController {
             })
             
             Timer.scheduledTimer(withTimeInterval: Constants.shortDelay, repeats: false) { [self] _ in
-                let nc = UINavigationController(rootViewController: MainViewController())
+                let controller = MainViewController()
+                controller.initData(customPics: customPics)
+                let nc = UINavigationController(rootViewController: controller)
                 nc.navigationBar.isHidden = true
                 view.window?.rootViewController = nc
             }

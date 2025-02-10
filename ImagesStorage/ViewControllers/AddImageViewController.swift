@@ -16,6 +16,8 @@ class AddImageViewController: UIViewController {
         return view
     }()
     
+    private var customPics = [CustomPic]()
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
@@ -69,9 +71,8 @@ extension AddImageViewController: ImageContainerViewDelegate {
             StorageManager.shared.saveCustomImage(customImage: customImage)
             
             let controller = EditImageViewController()
-            
-            let customPics = StorageManager.shared.getCustomPics()
-            controller.initData(images: customPics)
+            customPics.append(customImage)
+            controller.initData(images: customPics, index: customPics.count - 1)
             
             navigationController?.pushViewController(controller, animated: false)
             removeFromParent()
@@ -79,6 +80,10 @@ extension AddImageViewController: ImageContainerViewDelegate {
             // если не добавлили картинку, то идем назад
             navigationController?.popViewController(animated: true)
         }
+    }
+    
+    func initData(customPics: [CustomPic]) {
+        self.customPics = customPics
     }
     
     @objc private func didTap() {

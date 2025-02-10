@@ -62,30 +62,36 @@ extension StorageManager {
     }
     
     func saveCustomImage(customImage: CustomPic) {
-        var array = getCustomPics()
-        array.insert(customImage, at: .zero)
-        
-        let imagesinfo = array.map { $0.info }
-        
-        UserDefaults.standard.set(encodable: imagesinfo, forKey: .keyCustomPicsList)
-    }
-    
-    func getCustomPics() -> [CustomPic] {
-        guard let picsInfo = UserDefaults.standard.get([PicInfo].self, forKey: .keyCustomPicsList) else { return [] }
-        
-        var array = [CustomPic]()
-        
-        for item in picsInfo {
-            let image = getImage(fileName: item.imageFileName) ?? UIImage()
-            array.append(CustomPic(info: item, image: image))
+        getCustomPics { pics in
+            var array = pics
+            array.insert(customImage, at: .zero)
+            
+            let imagesinfo = array.map { $0.info }
+            
+            UserDefaults.standard.set(encodable: imagesinfo, forKey: .keyCustomPicsList)
         }
-        
-        return array
     }
     
-    func saveCustomPics(customPics: [CustomPic]) {
-        let array = customPics.map { $0.info }
-        UserDefaults.standard.set(encodable: array, forKey: .keyCustomPicsList)
+    func getCustomPics(completion: @escaping ([CustomPic]) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            guard let picsInfo = UserDefaults.standard.get([PicInfo].self, forKey: .keyCustomPicsList) else {
+                DispatchQueue.main.async {
+                    completion([]) // Возвращаем пустой массив на главном потоке
+                }
+                return
+            }
+            
+            var array = [CustomPic]()
+            
+            for item in picsInfo {
+                let image = self.getImage(fileName: item.imageFileName) ?? UIImage()
+                array.append(CustomPic(info: item, image: image))
+            }
+            
+            DispatchQueue.main.async {
+                completion(array) // Возвращаем загруженные картинки на главном потоке
+            }
+        }
     }
     
     private func getImage(fileName: String) -> UIImage? {
@@ -95,6 +101,11 @@ extension StorageManager {
         
         let fileUrl = documentDirectory.appendingPathComponent(fileName)
         return UIImage(contentsOfFile: fileUrl.path)
+    }
+    
+    func saveCustomPics(customPics: [CustomPic]) {
+        let array = customPics.map { $0.info }
+        UserDefaults.standard.set(encodable: array, forKey: .keyCustomPicsList)
     }
     
     func savePassword(password: String?) {

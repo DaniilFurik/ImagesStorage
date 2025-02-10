@@ -186,7 +186,7 @@ extension ImageContainerView: UITextFieldDelegate, UIImagePickerControllerDelega
             StorageManager.shared.removeImage(name: customImage.info.imageFileName)
             customImage.info.imageFileName = StorageManager.shared.saveImage(image: image) ?? .empty
             customImage.info.date = Manager.shared.getDate(from: dateText)?.timeIntervalSince1970 ?? Date().timeIntervalSince1970
-            
+            customImage.image = image
             isNewImage = false
         }
         
