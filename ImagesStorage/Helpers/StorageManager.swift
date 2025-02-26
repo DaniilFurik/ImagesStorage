@@ -5,6 +5,7 @@
 //  Created by Даниил on 13.12.24.
 //
 
+import SwiftyKeychainKit
 import UIKit
 
 final class StorageManager {
@@ -13,6 +14,8 @@ final class StorageManager {
     static let shared = StorageManager()
     
     private init() { }
+    
+    private var keyPassword: Keychain.Key<String> { .genericPassword(key: .keyPassword) }
 }
 
 extension StorageManager {
@@ -108,11 +111,11 @@ extension StorageManager {
         UserDefaults.standard.set(encodable: array, forKey: .keyCustomPicsList)
     }
     
-    func savePassword(password: String?) {
-        UserDefaults.standard.set(password, forKey: .keyPassword)
+    func savePassword(password: String) {
+        try? Keychain().set(password, for: keyPassword)
     }
     
     func getPassword() -> String? {
-        return UserDefaults.standard.string(forKey: .keyPassword)
+        return try? Keychain().get(keyPassword)
     }
 }

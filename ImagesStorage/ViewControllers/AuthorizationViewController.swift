@@ -306,7 +306,8 @@ private extension AuthorizationViewController {
     }
     
     func checkConfirmPassword() {
-        if enteredPassword == confirmedPassword {
+        if let confirmedPassword,
+           enteredPassword == confirmedPassword {
             imagesArray.forEach({ codeImage in
                 codeImage.tintColor = .systemGreen
             })

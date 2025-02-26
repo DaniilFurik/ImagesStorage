@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		67198D002D6F9AF000A8E311 /* SwiftyKeychainKit in Frameworks */ = {isa = PBXBuildFile; productRef = 67198CFF2D6F9AF000A8E311 /* SwiftyKeychainKit */; };
 		8372ADF9F7065260FFFE9A6B /* Pods_ImagesStorage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01A2B784181A16A19B7903FC /* Pods_ImagesStorage.framework */; };
 /* End PBXBuildFile section */
 
@@ -44,6 +45,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8372ADF9F7065260FFFE9A6B /* Pods_ImagesStorage.framework in Frameworks */,
+				67198D002D6F9AF000A8E311 /* SwiftyKeychainKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,6 +136,9 @@
 			);
 			mainGroup = 674AF2412D25C4BD006995C3;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				67198CFE2D6F9AF000A8E311 /* XCRemoteSwiftPackageReference "SwiftyKeychainKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 674AF24B2D25C4BD006995C3 /* Products */;
 			projectDirPath = "";
@@ -418,6 +423,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		67198CFE2D6F9AF000A8E311 /* XCRemoteSwiftPackageReference "SwiftyKeychainKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/andriyslyusar/SwiftyKeychainKit.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		67198CFF2D6F9AF000A8E311 /* SwiftyKeychainKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 67198CFE2D6F9AF000A8E311 /* XCRemoteSwiftPackageReference "SwiftyKeychainKit" */;
+			productName = SwiftyKeychainKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 674AF2422D25C4BD006995C3 /* Project object */;
 }
